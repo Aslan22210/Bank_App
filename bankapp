@@ -1,0 +1,244 @@
+import mysql.connector
+import tkinter as tk
+from tkinter import messagebox
+
+
+# Establish MySQL connection
+mydb = mysql.connector.connect(
+  user="root",
+  password="Turkeyankara2008",
+  database="Bank_App"
+)
+# Create cursor
+cursor = mydb.cursor()
+
+
+def validate_entry(username, password, email):
+    if username and password and email:
+        return True
+    else:
+        messagebox.showerror("Incomplete fields", "Please fill in all the required fields.")
+        return False
+
+
+def register():
+    global root
+    root = tk.Tk()
+
+
+    root.title("Register")
+    root.geometry('340x400')
+    root.configure(bg='#800020')
+    root.resizable(False, False)
+
+
+    # create registration form
+    signup_label = tk.Label(root, text="Username:",bg='#800020', fg="#FFFFFF", font=("Arial, 30"))
+    signup_label.pack()
+    username_label = tk.Label(root, text="Username:",bg='#800020', fg="#EC3A02", font=("Arial, 16"))
+    username_label.pack()
+    username_entry = tk.Entry(root)
+    username_entry.pack()
+
+
+    password_label = tk.Label(root, text="Password:",bg='#800020', fg="#EC3A02", font=("Arial, 16"))
+    password_label.pack()
+    password_entry = tk.Entry(root, show="*")
+    password_entry.pack()
+
+
+    email_label = tk.Label(root, text="Email:",bg='#800020', fg="#EC3A02", font=("Arial, 16"))
+    email_label.pack()
+    email_entry = tk.Entry(root)
+    email_entry.pack()
+
+
+    # Define register function to insert user data into MySQL
+    def insert_user():
+        username = username_entry.get()
+        password = password_entry.get()
+        email = email_entry.get()
+
+
+        if validate_entry(username, password, email):
+        # SQL query to insert user info into table
+            sql = "INSERT INTO users (username, password, email) VALUES (%s, %s, %s)"
+            val = (username, password, email)
+
+
+            cursor.execute(sql, val)
+            mydb.commit()  # Commit changes to database
+
+
+            # Close registration window
+            root.destroy()
+
+
+            # Show success message
+            login()
+            messagebox.showinfo("Registration successful", "Your account has been created.")
+           
+
+
+    register_button = tk.Button(root, text="Register", command=insert_user)
+    register_button.pack()
+
+
+    # Define submit button
+    submit_button = tk.Button(root, text="Submit", command=insert_user)
+    submit_button.pack()
+
+
+
+
+
+
+def login():
+    global root
+   
+    # Create new window
+    root = tk.Tk()
+    root.title("Login")
+    root.geometry('450x450')
+    root.configure(bg='#800020')
+
+
+    login_label = tk.Label(root, text="Login", bg='#800020', fg="#FFFFFF", font=("Arial, 30"))
+    login_label.pack()
+
+
+    username_label = tk.Label(root, text="Username:", bg='#800020', fg="#EC3A02", font=("Arial, 16"))
+    username_label.pack()
+    username_entry = tk.Entry(root)
+    username_entry.pack()
+
+
+    password_label = tk.Label(root, text="Password:", bg='#800020', fg="#EC3A02", font=("Arial, 16"))
+    password_label.pack()
+    password_entry = tk.Entry(root, show="*")
+    password_entry.pack()
+
+
+    # Define login function to check user data in MySQL
+    def submit_login():
+        username = username_entry.get()
+        password = password_entry.get()
+
+
+        # SQL query to retrieve user info from table
+        sql = "SELECT * FROM users WHERE username = %s AND password = %s"
+        val = (username, password)
+
+
+        cursor.execute(sql, val)
+        user = cursor.fetchone()
+
+
+        if user:
+            # Close login window
+            root.destroy()
+
+
+            # Show success message
+            messagebox.showinfo("Login successful", "Welcome back, " + username + "!")
+            home_page()
+        else:
+            # Show error message
+            messagebox.showerror("Invalid login credentials", "Please check your username and password.")
+
+
+    # Define submit button
+    submit_button = tk.Button(root, text="Submit", command=submit_login)
+    submit_button.pack()
+
+
+
+
+# Create main window
+def main_window():
+   
+    root = tk.Tk()
+    root.title("TrueNorth Main Page")
+    root.configure(bg='#800020')
+    root.geometry('300x400')
+    def go_to_login_form():
+    # close the current window and go to the login form
+        root.destroy()
+        login()
+
+
+       
+    def go_to_register_form():
+    # close the current window and go to the login form
+        root.destroy()
+        register()
+
+
+    truenorth_label = tk.Label(
+        root, text="TrueNorth", bg='#800020', fg="#FFFFFF", font=("Arial", 30, "bold"))
+
+
+
+
+    signup_button = tk.Button(root, text="Sign Up",bg="#EC3A02",fg="#FFFFFF", font=("Arial, 20"), command=go_to_register_form)
+   
+
+
+
+
+    login_button = tk.Button(root, text="Login",bg="#EC3A02",fg="#FFFFFF", font=("Arial, 20"), command=go_to_login_form )
+   
+
+
+    truenorth_label.grid(row=0, column=0, columnspan=1, sticky="news", pady= 40)
+   
+
+
+    signup_button.grid(row=1, column=0, pady=25, sticky="ew")
+ 
+
+
+    login_button.grid(row=2, column=0, pady=10, sticky="ew")
+
+
+    root.mainloop()
+
+
+
+
+
+
+
+
+def home_page():
+    # create the main window
+    root = tk.Tk()
+    root.title("True North Banking")
+    root.configure(bg='#800020')
+   
+    # create the rectangle card in the center
+    card_frame = tk.Frame(root, width=400, height=300, highlightbackground="black", highlightthickness=2, bg="#EC3A02")
+    card_frame.pack(expand=True, padx=20, pady=20)
+    card_label = tk.Label(card_frame, text="           CARD           ", font=("Helvetica", 30, "bold"), bg="#EC3A02", fg="white")
+    card_label.pack(pady=50)
+   
+    # create the buttons under the card
+    button_frame = tk.Frame(root, bg="#800020")
+    button_frame.pack(side="bottom", pady=10)
+    balance_button = tk.Button(button_frame, text="Check Balance", bg="#EC3A02", fg="white")
+    balance_button.grid(row=0, column=0, padx=20)
+    deposit_button = tk.Button(button_frame, text="Deposit", bg="#EC3A02", fg="white")
+    deposit_button.grid(row=0, column=1, padx=20)
+    withdraw_button = tk.Button(button_frame, text="Withdraw", bg="#EC3A02", fg="white")
+    withdraw_button.grid(row=0, column=2, padx=20)
+   
+    # run the main loop
+    root.mainloop()
+
+
+
+
+main_window()
+# Close cursor and MySQL connection
+cursor.close()
+mydb.close()
